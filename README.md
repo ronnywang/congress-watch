@@ -1,4 +1,18 @@
-- create a slack workspace
 - create database
   - cp config.sample.php config.php
   - php init-db.php
+- create a slack workspace
+  - create slack app
+    - https://api.slack.com/apps/
+        - Create New App
+        - From scratch
+        - App Name: Congress Watch
+        - choose workspace
+    - finish app created
+    - Basic Information
+      - copy Client ID to config.php SLACK_CLIENTID
+      - copy Client Secret to config.php SLACK_SECRET
+    - OAuth & Permissions
+      - Scopes > Add an OAuth Scope
+        - add channels:manage
+        
