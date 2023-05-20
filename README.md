@@ -15,4 +15,17 @@
         - copy "Bot User OAuth Token" to config.php SLACK_ACCESS_TOKEN
       - Scopes > Add an OAuth Scope
         - add channels:manage
+  - permission
+    - https://{your-workspace}.slack.com/admin/settings
+      - Settings
+        - Email Display
+          - No one
+      - Permissions
+        - Channel Management
+          - People who can create private channels: Workspace Admins and Owners only
+          - People who can create public channels: Everyone, except guests (default)
+          - People who can archive channels: Workspace Admins and Owners only
+          - People who can manage posting permissions in channels: Workspace Admins and Owners only
+    - https://{your-workspace}.slack.com/apps/manage/settings
+      - Require App Approval: On
         
