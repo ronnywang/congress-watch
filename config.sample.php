@@ -6,5 +6,4 @@ putenv('PDO_DSN=mysql:dbname=testdb;host=127.0.0.1');
 putenv('PDO_USERNAME=username');
 putenv('PDO_PASSWORD=password');
  */
-putenv('SLACK_CLIENTID=');
-putenv('SLACK_SECRET=');
+putenv('SLACK_ACCESS_TOKEN=');

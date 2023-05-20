@@ -9,10 +9,10 @@
         - App Name: Congress Watch
         - choose workspace
     - finish app created
-    - Basic Information
-      - copy Client ID to config.php SLACK_CLIENTID
-      - copy Client Secret to config.php SLACK_SECRET
     - OAuth & Permissions
+      - OAuth Tokens for your Workspace
+        - click "Install to Workspace" > Allow
+        - copy "Bot User OAuth Token" to config.php SLACK_ACCESS_TOKEN
       - Scopes > Add an OAuth Scope
         - add channels:manage
         
