@@ -1,0 +1,4 @@
+- create a slack workspace
+- create database
+  - cp config.sample.php config.php
+  - php init-db.php
