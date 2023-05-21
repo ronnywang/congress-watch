@@ -71,4 +71,42 @@ class CongressWatch
         }
         return null;
     }
+
+    public static function addSpeech($speech)
+    {
+        $db = self::getDb();
+        if (!property_exists($speech, 'video_url')) {
+            throw new Exception('need speech.video_url');
+        }
+
+        $stmt = $db->prepare("SELECT * FROM video WHERE video_id = :video_id");
+        $stmt->execute(['video_id' => $speech->video_id]);
+        if (!$video = $stmt->fetch()) {
+            $db->prepare("INSERT INTO video (video_id, video_url, video_at, transcript, data) VALUES (:video_id, :video_url, :video_at, '', '{}')")->execute([
+                'video_id' => $speech->video_id,
+                'video_url' => $speech->video_url,
+                'video_at' => intval($speech->video_at),
+            ]);
+            $video_id = $db->lastInsertId();
+        } else {
+            $video_id = $video['video_id'];
+        }
+
+        error_log("inserting speech {$video_id}");
+        $stmt = $db->prepare("SELECT * FROM speech WHERE speech_id = :speech_id");
+        $stmt->execute(['speech_id' => $video_id]);
+        if (!$row = $stmt->fetch()) {
+            $db->prepare("INSERT INTO speech (speech_id, video_id, video_start, video_end, spoken_by, data, summary, summary_sent_at, summary_message_id) VALUES (:speech_id, :video_id, :video_start, :video_end, :spoken_by, :data, :summary, :summary_sent_at, :summary_message_id)")->execute([
+                'speech_id' => $speech->speech_id,
+                'video_id' => $speech->video_id,
+                'video_start' => $speech->video_start,
+                'video_end' => $speech->video_end,
+                'spoken_by' => $speech->spoken_by,
+                'data' => $speech->data,
+                'summary' => '',
+                'summary_sent_at' => 0,
+                'summary_message_id' => '',
+            ]);
+        }
+    }
 }
