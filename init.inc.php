@@ -109,4 +109,16 @@ class CongressWatch
             ]);
         }
     }
+
+    public static function getPartialTranscript($record)
+    {
+        if ($record['video_start'] != 0 or $record['video_end'] != 0) {
+            throw new Exception('TODO: unsupport video_start, video_end');
+        }
+        // TODO: get partial transcript by video_start and video_end
+        $transcript = $record['transcript'];
+        $transcript = preg_replace('#\[[0-9\- .>:]*\]\s+#', '', $transcript);
+        $transcript = preg_replace('#\s+#', ' ', $transcript);
+        return $transcript;
+    }
 }
