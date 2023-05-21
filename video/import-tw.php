@@ -85,7 +85,7 @@ foreach ($get_video_content() as $video) {
         $name = '伍麗華Saidhai‧Tahovecahe';
     }
     if (!$congressman_id = CongressWatch::getCongressManId($name)) {
-        throw new Exception("Congressman {$name} not found, video_id = {$video_id}");
+        readline("Congressman {$name} not found, video_id = {$video_id}, continue?");
     }
 
     $speech = new StdClass;
