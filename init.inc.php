@@ -55,4 +55,20 @@ class CongressWatch
             $url = "conversations.list?limit={$limit}&cursor={$ret->response_metadata->next_cursor}";
         }
     }
+
+    protected static $_names = null;
+    public static function getCongressManId($name)
+    {
+        if (is_null(self::$_names)) {
+            $db = self::getDb();
+            self::$_names = [];
+            foreach ($db->query("SELECT congressman_id, name FROM congressman") as $row) {
+                self::$_names[$row['name']] = $row['congressman_id'];
+            }
+        }
+        if (array_key_exists($name, self::$_names)) {
+            return self::$_names[$name];
+        }
+        return null;
+    }
 }
