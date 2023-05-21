@@ -81,6 +81,9 @@ foreach ($get_video_content() as $video) {
     list($video_id, $url, $content) = $video;
     $obj = $parse_video_info($content, $video_id);
     $name = $obj->{'委員名稱'};
+    if ($name == '伍麗華Saidhai Tahovecahe') {
+        $name = '伍麗華Saidhai‧Tahovecahe';
+    }
     if (!$congressman_id = CongressWatch::getCongressManId($name)) {
         throw new Exception("Congressman {$name} not found, video_id = {$video_id}");
     }
