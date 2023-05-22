@@ -14,7 +14,7 @@
         - click "Install to Workspace" > Allow
         - copy "Bot User OAuth Token" to config.php SLACK_ACCESS_TOKEN
       - Scopes > Add an OAuth Scope
-        - add channels:manage
+        - add channels:manage, chat:write, chat:write.customize
   - permission
     - https://{your-workspace}.slack.com/admin/settings
       - Settings
@@ -28,4 +28,6 @@
           - People who can manage posting permissions in channels: Workspace Admins and Owners only
     - https://{your-workspace}.slack.com/apps/manage/settings
       - Require App Approval: On
-        
+- add openai api key
+  - https://platform.openai.com/account/api-keys
+  - add apikey to config.php OPENAI_SECRET
