@@ -7,3 +7,4 @@ putenv('PDO_USERNAME=username');
 putenv('PDO_PASSWORD=password');
  */
 putenv('SLACK_ACCESS_TOKEN=');
+putenv('OPENAI_SECRET=');
