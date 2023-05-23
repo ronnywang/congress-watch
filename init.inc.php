@@ -57,17 +57,23 @@ class CongressWatch
     }
 
     protected static $_names = null;
+    protected static $_id_to_name = null;
     public static function getCongressManId($name)
     {
         if (is_null(self::$_names)) {
             $db = self::getDb();
             self::$_names = [];
-            foreach ($db->query("SELECT congressman_id, name FROM congressman") as $row) {
+            self::$_id_to_name = [];
+            foreach ($db->query("SELECT congressman_id, name, slack_channel FROM congressman") as $row) {
                 self::$_names[$row['name']] = $row['congressman_id'];
+                self::$_id_to_name[$row['congressman_id']] = $row;
             }
         }
         if (array_key_exists($name, self::$_names)) {
             return self::$_names[$name];
+        }
+        if (array_key_exists($name, self::$_id_to_name)) {
+            return self::$_id_to_name[$name];
         }
         return null;
     }
@@ -120,5 +126,55 @@ class CongressWatch
         $transcript = preg_replace('#\[[0-9\- .>:]*\]\s+#', '', $transcript);
         $transcript = preg_replace('#\s+#', ' ', $transcript);
         return $transcript;
+    }
+
+    public static function summaryTranscript($text)
+    {
+        $obj = new StdClass;
+        if (mb_strlen($text) > 2000) {
+            $text = mb_substr($text, 0, 2000);
+            $obj->truncated = true;
+        }
+        $obj->prompt = '請幫我以 100 字摘要以下內容，並且以 「#關鍵字」 的型式列出最多三個重要的關鍵字：' . "\n";
+        $obj->prompt .= $text;
+
+        $messages = [
+            ['role' => 'user', 'content' => $obj->prompt],
+        ];
+
+        while (true) {
+            if (getenv('OPENAI_ENDPOINT')) {
+                $curl = curl_init(getenv('OPENAI_ENDPOINT') . "/chat/completions?api-version=2023-03-15-preview");
+            } else {
+                $curl = curl_init("https://api.openai.com/v1/chat/completions");
+            }
+            curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, [
+                "Content-Type: application/json",
+                "Authorization: Bearer " . getenv('OPENAI_SECRET'),
+                'api-key: ' . getenv('OPENAI_SECRET'),
+            ]);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode([
+                'model' => 'gpt-3.5-turbo',
+                'temperature' => 0,
+                'messages' => $messages,
+            ]));
+            $content = curl_exec($curl);
+            error_log("got: " . $content);
+            // {"id":"chatcmpl-7IdyKe3iWocE1Y1spEIpp3wx2B4QP","object":"chat.completion","created":1684677912,"model":"gpt-3.5-turbo-0301","usage":{"prompt_tokens":1613,"completion_tokens":265,"total_tokens":1878},"choices":[{"message":{"role":"assistant","content":"本文介紹了民眾黨黨團針對海洋污染防治法的修法提案。海岸線總長有一千五百多公里，各種垃圾很容易 進入海洋，影響海洋生態及環境。因此推動海洋環境保護工程非常重要。修法提案包括定期公開國家海洋污染防治白皮書、增加海 洋廢棄物來源的管理、明確規範路源污染物等，以強化我國海洋污染防治效果。另外，也提出了第35條的修正案，以避免侵害船員 返鄉權。#海洋污染 #海洋環境保護 #修法提案"},"finish_reason":"stop","index":0}]}
+            if (!$ret = json_decode($content)) {
+                throw new Exception('not valid json: ' . $content);
+            }
+            if (!property_exists($ret, 'choices')) {
+                throw new Exception('choices not found: ' . $content);
+            }
+            if ($ret->choices[0]->finish_reason == 'stop') {
+                break;
+            }
+            $messages[] = $ret->choices[0]->message;
+        }
+        $obj->result = $ret;
+        return $obj;
     }
 }
